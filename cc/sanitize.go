@@ -317,6 +317,7 @@ func (sanitize *sanitize) flags(ctx ModuleContext, flags Flags) Flags {
 		flags.LdFlags = append(flags.LdFlags, "-Wl,--exclude-libs,"+minimalRuntimeLib)
 	}
 	if !sanitize.Properties.SanitizerEnabled {
+		flags.CFlags = append(flags.CFlags, "-fwrapv")
 		return flags
 	}
 
@@ -356,6 +357,17 @@ func (sanitize *sanitize) flags(ctx ModuleContext, flags Flags) Flags {
 			)
 		}
 		sanitizers = append(sanitizers, sanitize.Properties.Sanitize.Misc_undefined...)
+	}
+
+	wrapv := true
+	for _, element := range sanitizers {
+		if (element == "undefined" || element == "integer" || element == "signed-integer-overflow") {
+			wrapv = false
+			break
+		}
+	}
+	if wrapv {
+		flags.CFlags = append(flags.CFlags, "-fwrapv")
 	}
 
 	if Bool(sanitize.Properties.Sanitize.Diag.Undefined) {
