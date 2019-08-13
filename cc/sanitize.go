@@ -454,12 +454,12 @@ func (sanitize *sanitize) flags(ctx ModuleContext, flags Flags) Flags {
 	}
 
 	if len(sanitizers) > 0 {
-		sanitizeArg := "-fsanitize=" + strings.Join(sanitizers, ",")
+		//sanitizeArg := "-fsanitize=" + strings.Join(sanitizers, ",")
 
-		flags.CFlags = append(flags.CFlags, sanitizeArg)
+		//flags.CFlags = append(flags.CFlags, sanitizeArg)
 		if ctx.Host() {
 			flags.CFlags = append(flags.CFlags, "-fno-sanitize-recover=all")
-			flags.LdFlags = append(flags.LdFlags, sanitizeArg)
+			//flags.LdFlags = append(flags.LdFlags, sanitizeArg)
 			// Host sanitizers only link symbols in the final executable, so
 			// there will always be undefined symbols in intermediate libraries.
 			_, flags.LdFlags = removeFromList("-Wl,--no-undefined", flags.LdFlags)
