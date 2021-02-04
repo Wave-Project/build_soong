@@ -149,6 +149,9 @@ func init() {
 		"-Wno-c99-designator",
 		"-Wno-error=reorder-init-list",
 		"-Wno-error=implicit-int-float-conversion",
+
+		// Warnings from clang-12
+		"-Wno-gnu-folding-constant",
 	}, " "))
 
 	pctx.StaticVariable("ClangExtraCppflags", strings.Join([]string{
