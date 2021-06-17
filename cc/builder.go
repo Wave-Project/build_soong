@@ -139,7 +139,7 @@ var (
 		blueprint.RuleParams{
 			Depfile:     "${out}.d",
 			Deps:        blueprint.DepsGCC,
-			Command:     "XZ=$xzCmd CLANG_BIN=${config.ClangBin} $stripPath ${args} -i ${in} -o ${out} -d ${out}.d",
+			Command:     "CROSS_COMPILE=$crossCompile XZ=$xzCmd CLANG_BIN=${config.ClangBin} $stripPath ${args} -i ${in} -o ${out} -d ${out}.d",
 			CommandDeps: []string{"$stripPath", "$xzCmd"},
 			Pool:        darwinStripPool,
 		},
@@ -167,11 +167,11 @@ var (
 		blueprint.RuleParams{
 			Depfile:     "${out}.d",
 			Deps:        blueprint.DepsGCC,
-			Command:     "CLANG_BIN=$clangBin $tocPath $format -i ${in} -o ${out} -d ${out}.d",
+			Command:     "CROSS_COMPILE=$crossCompile $tocPath $format -i ${in} -o ${out} -d ${out}.d",
 			CommandDeps: []string{"$tocPath"},
 			Restat:      true,
 		},
-		"clangBin", "format")
+		"crossCompile", "format")
 
 	clangTidy = pctx.AndroidStaticRule("clangTidy",
 		blueprint.RuleParams{
@@ -828,12 +828,16 @@ func TransformSharedObjectToToc(ctx android.ModuleContext, inputFile android.Pat
 	outputFile android.WritablePath, flags builderFlags) {
 
 	var format string
+	var crossCompile string
 	if ctx.Darwin() {
 		format = "--macho"
+		crossCompile = "${config.MacToolPath}"
 	} else if ctx.Windows() {
 		format = "--pe"
+		crossCompile = gccCmd(flags.toolchain, "")
 	} else {
 		format = "--elf"
+		crossCompile = gccCmd(flags.toolchain, "")
 	}
 
 	ctx.Build(pctx, android.BuildParams{
@@ -842,8 +846,8 @@ func TransformSharedObjectToToc(ctx android.ModuleContext, inputFile android.Pat
 		Output:      outputFile,
 		Input:       inputFile,
 		Args: map[string]string{
-			"clangBin": "${config.ClangBin}",
-			"format":   format,
+			"crossCompile": crossCompile,
+			"format":       format,
 		},
 	})
 }
